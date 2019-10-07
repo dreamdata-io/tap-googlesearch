@@ -16,6 +16,8 @@ def main():
     webmasters_service = build("webmasters", "v3", http=http)
 
     verified_sites = verified_site_urls(webmasters_service)
+    for site in verified_sites:
+        days = filter_days_with_data(webmasters_service, site)
 
 
 def get_authorized_http(filename="credentials.json"):
@@ -63,6 +65,24 @@ def verified_site_urls(service):
         for s in site_list["siteEntry"]
         if s["permissionLevel"] != "siteUnverifiedUser" and s["siteUrl"][:4] == "http"
     ]
+
+
+def filter_days_with_data(service, site_url, start_date: date = None):
+    """retrieve all dates that have data in the interval end_date - start_date"""
+    if not start_date:
+        start_date = date.today() - timedelta(weeks=4 * 6)
+
+    request = {
+        "startDate": start_date.strftime("%Y-%m-%d"),
+        "endDate": date.today().strftime("%Y-%m-%d"),
+        "dimensions": ["date"],
+    }
+    resp = service.searchanalytics().query(siteUrl=site_url, body=request).execute()
+
+    # dates are sorted in ascending order
+    for item in resp["rows"]:
+        # example: 'keys': ['2019-09-09']
+        yield item["keys"][0]
 
 
 if __name__ == "__main__":
