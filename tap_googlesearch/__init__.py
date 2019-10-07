@@ -15,6 +15,8 @@ def main():
     http = get_authorized_http()
     webmasters_service = build("webmasters", "v3", http=http)
 
+    verified_sites = verified_site_urls(webmasters_service)
+
 
 def get_authorized_http(filename="credentials.json"):
     try:
@@ -49,6 +51,18 @@ def get_authorized_http(filename="credentials.json"):
 
     http = httplib2.Http()
     return credentials.authorize(http)
+
+
+def verified_site_urls(service):
+    # Retrieve list of properties in account
+    site_list = service.sites().list().execute()
+
+    # Filter for verified websites
+    return [
+        s["siteUrl"]
+        for s in site_list["siteEntry"]
+        if s["permissionLevel"] != "siteUnverifiedUser" and s["siteUrl"][:4] == "http"
+    ]
 
 
 if __name__ == "__main__":
