@@ -38,14 +38,24 @@ def get_analytics(service, site_url, days, dimensions, row_limit=None):
             "startRow": 0,
         }
 
-        resp = service.searchanalytics().query(siteUrl=site_url, body=request).execute()
-        dims = len(dimensions)
-        for item in resp["rows"]:
-            values = item.pop("keys")
-            for i in range(dims):
-                key, value = dimensions[i], values[i]
-                item[key] = value
-            yield item
+        while True:
+            resp = (
+                service.searchanalytics()
+                .query(siteUrl=site_url, body=request)
+                .execute()
+            )
+            dims = len(dimensions)
+            for item in resp["rows"]:
+                values = item.pop("keys")
+                for i in range(dims):
+                    key, value = dimensions[i], values[i]
+                    item[key] = value
+                yield item
+
+            if len(resp["rows"]) < row_limit:
+                break
+
+            request["startRow"] += row_limit
 
 
 def get_authorized_http(filename="credentials.json"):
