@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 
 import httplib2
 from apiclient.discovery import build
@@ -13,11 +13,39 @@ GOOGLE_CLIENT_SECRET = os.environ["GOOGLE_CLIENT_SECRET"]
 
 def main():
     http = get_authorized_http()
-    webmasters_service = build("webmasters", "v3", http=http)
+    service = build("webmasters", "v3", http=http)
 
-    verified_sites = verified_site_urls(webmasters_service)
+    dimensions = ["page", "query"]
+
+    verified_sites = verified_site_urls(service)
     for site in verified_sites:
-        days = filter_days_with_data(webmasters_service, site)
+        days = filter_days_with_data(service, site)
+        records = get_analytics(service, site, days, dimensions)
+
+
+def get_analytics(service, site_url, days, dimensions, row_limit=None):
+    row_limit = row_limit or 1000
+    for start_date in days:
+        end_date = (
+            datetime.strptime(start_date, "%Y-%m-%d").date() + timedelta(days=1)
+        ).strftime("%Y-%m-%d")
+
+        request = {
+            "startDate": start_date,
+            "endDate": end_date,
+            "dimensions": dimensions,
+            "rowLimit": 1000,
+            "startRow": 0,
+        }
+
+        resp = service.searchanalytics().query(siteUrl=site_url, body=request).execute()
+        dims = len(dimensions)
+        for item in resp["rows"]:
+            values = item.pop("keys")
+            for i in range(dims):
+                key, value = dimensions[i], values[i]
+                item[key] = value
+            yield item
 
 
 def get_authorized_http(filename="credentials.json"):
