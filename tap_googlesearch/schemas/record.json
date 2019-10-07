@@ -20,8 +20,8 @@
         "position": {
             "type": "number"
         },
-        "timestamp": {
-            "format": "date-time",
+        "date": {
+            "format": "date",
             "type": "string"
         },
         "device": {
@@ -48,11 +48,9 @@
                 "string"
             ]
         },
-        "date": {
-            "type": [
-                "null",
-                "string"
-            ]
+        "timestamp": {
+            "format": "date",
+            "type": "string"
         }
     }
 }
