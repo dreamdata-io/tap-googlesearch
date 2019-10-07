@@ -6,16 +6,31 @@ from datetime import timedelta, date, datetime
 import httplib2
 from apiclient.discovery import build
 from oauth2client.client import OAuth2WebServerFlow, OAuth2Credentials
+import singer
+from signer import utils
 
-GOOGLE_CLIENT_ID = os.environ["GOOGLE_CLIENT_ID"]
-GOOGLE_CLIENT_SECRET = os.environ["GOOGLE_CLIENT_SECRET"]
+logger = singer.get_logger()
+
+DIMENSIONS = ["country", "page", "query", "device", "date"]
 
 
 def main():
-    http = get_authorized_http()
-    service = build("webmasters", "v3", http=http)
+    args = utils.parse_args(["oauth2_credentials_file"])
 
-    dimensions = ["page", "query"]
+    dimensions = args.config.get("dimensions")
+    if not dimensions:
+        dimensions = DIMENSIONS
+    else:
+        for dim in dimensions:
+            if dim not in DIMENSIONS:
+                raise ValueError(f"unknown dimension: '{dim}'")
+
+    credentials_file = args.config.get("oauth2_credentials_file")
+    if not credentials_file:
+        pass
+
+    http = get_authorized_http(credentials_file)
+    service = build("webmasters", "v3", http=http)
 
     verified_sites = verified_site_urls(service)
     for site in verified_sites:
@@ -59,9 +74,9 @@ def get_analytics(service, site_url, days, dimensions, row_limit=None):
             request["startRow"] += row_limit
 
 
-def get_authorized_http(filename="credentials.json"):
+def get_authorized_http(credentials_file):
     try:
-        with open(filename, "r") as fp:
+        with open(credentials_file, "r") as fp:
             raw_credentials = fp.read()
             credentials = OAuth2Credentials.from_json(raw_credentials)
 
@@ -70,6 +85,9 @@ def get_authorized_http(filename="credentials.json"):
             return credentials.authorize(http)
     except IOError:
         pass
+
+    GOOGLE_CLIENT_ID = os.environ["GOOGLE_CLIENT_ID"]
+    GOOGLE_CLIENT_SECRET = os.environ["GOOGLE_CLIENT_SECRET"]
 
     # Check https://developers.google.com/webmaster-tools/search-console-api-original/v3/ for all available scopes
     OAUTH_SCOPE = "https://www.googleapis.com/auth/webmasters.readonly"
@@ -86,7 +104,7 @@ def get_authorized_http(filename="credentials.json"):
     code = input("Enter verification code: ").strip()
     credentials = flow.step2_exchange(code)
 
-    with open(filename, "w") as fp:
+    with open(credentials_file, "w") as fp:
         payload = credentials.to_json()
         fp.write(payload)
 
