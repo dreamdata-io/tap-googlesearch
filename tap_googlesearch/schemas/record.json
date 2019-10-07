@@ -3,7 +3,8 @@
         "clicks",
         "impressions",
         "ctr",
-        "position"
+        "position",
+        "timestamp"
     ],
     "type": "object",
     "properties": {
@@ -18,6 +19,10 @@
         },
         "position": {
             "type": "number"
+        },
+        "timestamp": {
+            "format": "date-time",
+            "type": "string"
         },
         "device": {
             "type": [

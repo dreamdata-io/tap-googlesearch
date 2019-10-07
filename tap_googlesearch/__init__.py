@@ -50,6 +50,7 @@ def get_analytics(service, site_url, days, dimensions, row_limit=None):
                 for i in range(dims):
                     key, value = dimensions[i], values[i]
                     item[key] = value
+                item["timestamp"] = start_date
                 yield item
 
             if len(resp["rows"]) < row_limit:
