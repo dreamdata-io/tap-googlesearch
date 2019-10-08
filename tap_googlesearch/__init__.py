@@ -7,7 +7,7 @@ import httplib2
 from apiclient.discovery import build
 from oauth2client.client import OAuth2WebServerFlow, OAuth2Credentials
 import singer
-from signer import utils
+from singer import utils
 
 logger = singer.get_logger()
 
