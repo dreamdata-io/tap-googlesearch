@@ -1,13 +1,21 @@
 {
     "required": [
+        "timestamp",
+        "site_url",
         "clicks",
         "impressions",
         "ctr",
-        "position",
-        "timestamp"
+        "position"
     ],
     "type": "object",
     "properties": {
+        "site_url": {
+            "type": "string"
+        },
+        "timestamp": {
+            "format": "date",
+            "type": "string"
+        },
         "clicks": {
             "type": "number"
         },
@@ -47,10 +55,6 @@
                 "null",
                 "string"
             ]
-        },
-        "timestamp": {
-            "format": "date",
-            "type": "string"
         }
     }
 }

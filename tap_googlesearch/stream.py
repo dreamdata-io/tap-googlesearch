@@ -140,6 +140,7 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
                     key, value = dimensions[i], values[i]
                     item[key] = value
                 item["timestamp"] = start_date
+                item["site_url"] = site_url
                 yield item, end_date
 
             if len(resp["rows"]) < row_limit:
