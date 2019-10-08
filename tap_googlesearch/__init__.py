@@ -11,6 +11,7 @@ from singer import utils
 from tap_googlesearch import stream
 
 logger = singer.get_logger()
+logger.setLevel(logging.WARNING)
 
 DIMENSIONS = ["country", "page", "query", "device", "date"]
 
