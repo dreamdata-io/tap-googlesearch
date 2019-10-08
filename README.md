@@ -8,6 +8,13 @@ run the following command in the root of the folder:
 pipenv install . && pipenv run tap-googlesearch -c config.json > records.ndjson
 ```
 
+and test using the `singer-check-tap` by installaing the `singer-tools` as well:
+
+```bash
+pipenv install singer-tools
+pipenv install . &&  pipenv run tap-googlesearch -c example_config.json | singer-check-tap
+```
+
 # config
 
 Below is an example of a valid `config.json` for this tap. There's an optional `start_date` field that will default to 24 weeks in the past if not set.
