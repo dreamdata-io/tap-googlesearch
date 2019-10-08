@@ -27,9 +27,13 @@ def main():
             if dim not in DIMENSIONS:
                 raise ValueError(f"unknown dimension: '{dim}'")
 
-    credentials_file = args.config.get("oauth2_credentials_file")
+    credentials_file = args.config.get("oauth2_credentials_file") or os.environ.get(
+        "OAUTH2_CREDENTIALS_FILE"
+    )
     if not credentials_file:
-        pass
+        raise ValueError(
+            "missing required config 'oauth2_credentials_file' or environment 'OAUTH2_CREDENTIALS_FILE'"
+        )
 
     http = get_authorized_http(credentials_file)
 
