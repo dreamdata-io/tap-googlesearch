@@ -13,6 +13,8 @@ logger = singer.get_logger()
 
 DIMENSIONS = ["country", "page", "query", "device", "date"]
 
+service = None
+
 
 def main():
     args = utils.parse_args(["oauth2_credentials_file"])
@@ -30,15 +32,21 @@ def main():
         pass
 
     http = get_authorized_http(credentials_file)
+
+    global service
     service = build("webmasters", "v3", http=http)
 
-    verified_sites = verified_site_urls(service)
+
+def build_streams(dimensions):
+    verified_sites = verified_site_urls()
     for site in verified_sites:
         days = filter_days_with_data(service, site)
-        records = get_analytics(service, site, days, dimensions)
+        records = get_analytics(site, days, dimensions)
+        for record in records:
+            logger.info(record)
 
 
-def get_analytics(service, site_url, days, dimensions, row_limit=None):
+def get_analytics(site_url, days, dimensions, row_limit=None):
     row_limit = row_limit or 1000
     for start_date in days:
         end_date = (
@@ -112,7 +120,7 @@ def get_authorized_http(credentials_file):
     return credentials.authorize(http)
 
 
-def verified_site_urls(service):
+def verified_site_urls():
     # Retrieve list of properties in account
     site_list = service.sites().list().execute()
 
@@ -124,7 +132,7 @@ def verified_site_urls(service):
     ]
 
 
-def filter_days_with_data(service, site_url, start_date: date = None):
+def filter_days_with_data(site_url, start_date: date = None):
     """retrieve all dates that have data in the interval end_date - start_date"""
     if not start_date:
         start_date = date.today() - timedelta(weeks=4 * 6)
