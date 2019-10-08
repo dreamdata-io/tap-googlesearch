@@ -30,7 +30,10 @@
         },
         "date": {
             "format": "date",
-            "type": "string"
+            "type": [
+                "null",
+                "string"
+            ]
         },
         "device": {
             "type": [
