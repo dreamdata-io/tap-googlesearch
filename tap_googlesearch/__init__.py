@@ -17,7 +17,7 @@ DIMENSIONS = ["country", "page", "query", "device", "date"]
 
 
 def main():
-    args = utils.parse_args(["oauth2_credentials_file"])
+    args = utils.parse_args([])
 
     dimensions = args.config.get("dimensions")
 
