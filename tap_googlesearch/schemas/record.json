@@ -1,0 +1,63 @@
+{
+    "required": [
+        "timestamp",
+        "site_url",
+        "clicks",
+        "impressions",
+        "ctr",
+        "position"
+    ],
+    "type": "object",
+    "properties": {
+        "site_url": {
+            "type": "string"
+        },
+        "timestamp": {
+            "format": "date",
+            "type": "string"
+        },
+        "clicks": {
+            "type": "number"
+        },
+        "impressions": {
+            "type": "number"
+        },
+        "ctr": {
+            "type": "number"
+        },
+        "position": {
+            "type": "number"
+        },
+        "date": {
+            "format": "date",
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "device": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "query": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "country": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "page": {
+            "type": [
+                "null",
+                "string"
+            ]
+        }
+    }
+}

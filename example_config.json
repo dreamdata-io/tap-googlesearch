@@ -1,0 +1,9 @@
+{
+    "oauth2_credentials_file": "./credentials.json",
+    "dimensions": [
+        "page",
+        "query",
+        "date"
+    ],
+    "start_date": "2019-08-08"
+}
