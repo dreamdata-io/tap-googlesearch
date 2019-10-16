@@ -1,10 +1,10 @@
 import os
-
 import logging
+import json
 
 import httplib2
 from apiclient.discovery import build
-from oauth2client.client import OAuth2Credentials
+from oauth2client.client import AccessTokenCredentials 
 import singer
 from singer import utils
 
@@ -42,19 +42,9 @@ def main():
 
 def get_authorized_http(credentials_file):
     with open(credentials_file, "r") as fp:
-        raw_credentials = fp.read()
-        credentials = OAuth2Credentials.from_json(raw_credentials)
+        json_creds = json.loads(fp)
 
-        http = httplib2.Http()
-
-        logger.info("refreshing credentials...")
-        credentials.refresh(http)
-        logger.info("done.")
-
-    # write the new rotated credentials
-    with open(credentials_file, "w") as fp:
-        payload = credentials.to_json()
-        fp.write(payload)
+    credentials = AccessTokenCredentials(json_creds["access_token"], "tap-googlesearch-0.0.1")
 
     http = httplib2.Http()
     return credentials.authorize(http)
