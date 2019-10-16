@@ -16,7 +16,7 @@ logger = singer.get_logger()
 svc = None
 
 
-def process_streams(service, site_urls, dimensions, state=None):
+def process_streams(service, site_urls, dimensions, state=None, stream_id=None):
     global svc
     svc = service
 
@@ -26,12 +26,13 @@ def process_streams(service, site_urls, dimensions, state=None):
     if not dimensions:
         logger.info(f"no dimensions specified in config, defaulting to {dimensions}")
         dimensions = DIMENSIONS
-        stream_id = "_".join(DIMENSIONS)
     else:
         for dim in dimensions:
             if dim not in DIMENSIONS:
                 raise ValueError(f"unknown dimension: '{dim}'")
-        stream_id = "_".join(dimensions)
+    
+    if not stream_id:
+        stream_id = stream_id = "_".join(dimensions)
 
     verified_urls = verified_site_urls()
     if not site_urls:
