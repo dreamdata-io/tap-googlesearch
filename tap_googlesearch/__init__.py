@@ -38,7 +38,14 @@ def main():
     http = get_authorized_http(credentials_file)
     service = build("webmasters", "v3", cache_discovery=False, http=http)
 
-    stream.process_streams(service, site_urls, dimensions, state=state, stream_id=stream_id, start_date=start_date)
+    stream.process_streams(
+        service,
+        site_urls,
+        dimensions,
+        state=state,
+        stream_id=stream_id,
+        start_date=start_date,
+    )
 
 
 def get_authorized_http(credentials_file):
