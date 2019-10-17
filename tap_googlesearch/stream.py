@@ -110,6 +110,11 @@ def filter_days_with_data(site_url, start_date: date = None):
     }
     resp = svc.searchanalytics().query(siteUrl=site_url, body=request).execute()
 
+    if "rows" not in resp:
+        print(json.dumps(resp))
+        raise ValueError("no rows in the query!")
+
+
     # dates are sorted in ascending order
     for item in resp["rows"]:
         # example: 'keys': ['2019-09-09']
