@@ -162,13 +162,8 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
             request["startRow"] += row_limit
 
 
-@backoff.on_exception(
-    backoff.expo,
-    googleapiclient.errors.HttpError,
-    ratelimit.exception.RateLimitException,
-    logger=logger,
-)
-@ratelimit.limits(calls=20 * 60, period=60)
+@backoff.on_exception(backoff.expo, googleapiclient.errors.HttpError)
+@ratelimit.limits(calls=20 * 60, period=60, raise_on_limit=False)
 def search_analytics(site_url, body):
     return svc.searchanalytics().query(siteUrl=site_url, body=body).execute()
 
