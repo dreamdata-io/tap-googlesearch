@@ -2,9 +2,15 @@ import os
 import pkg_resources
 import json
 import sys
+import traceback
 
 from typing import Dict, Any, List
 from datetime import date, timedelta, datetime
+
+from ratelimit import limits
+import backoff
+import googleapiclient
+
 
 import singer
 from singer import utils
@@ -32,7 +38,7 @@ def process_streams(
         for dim in dimensions:
             if dim not in DIMENSIONS:
                 raise ValueError(f"unknown dimension: '{dim}'")
-    
+
     if not stream_id:
         stream_id = stream_id = "_".join(dimensions)
 
@@ -153,6 +159,12 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
                 break
 
             request["startRow"] += row_limit
+
+
+@backoff.on_exception(backoff.expo, googleapiclient.errors.HttpError, logger=logger)
+@limits(calls=20, period=20 * 60)
+def search_analytics(site_url, body):
+    return svc.searchanalytics().query(siteUrl=site_url, body=body).execute()
 
 
 def discover(dimensions):

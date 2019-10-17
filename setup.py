@@ -9,7 +9,12 @@ setup(
     author="Dreamdata",
     url="https://dreamdata.io",
     classifiers=["Programming Language :: Python :: 3 :: Only"],
-    install_requires=["singer-python==5.8.1", "google-api-python-client"],
+    install_requires=[
+        "singer-python==5.8.1",
+        "google-api-python-client",
+        "ratelimit",
+        "backoff",
+    ],
     entry_points="""
         [console_scripts]
         tap-googlesearch=tap_googlesearch:main
