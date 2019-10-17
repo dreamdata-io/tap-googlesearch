@@ -103,9 +103,6 @@ def verified_site_urls():
 
 def filter_days_with_data(site_url, start_date: date = None):
     """retrieve all dates that have data in the interval end_date - start_date"""
-    if not start_date:
-        start_date = date.today() - timedelta(weeks=4 * 6)
-
     request = {
         "startDate": start_date.strftime("%Y-%m-%d"),
         "endDate": date.today().strftime("%Y-%m-%d"),
