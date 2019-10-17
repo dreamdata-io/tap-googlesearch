@@ -7,7 +7,7 @@ import traceback
 from typing import Dict, Any, List
 from datetime import date, timedelta, datetime
 
-from ratelimit import limits
+import ratelimit
 import backoff
 import googleapiclient
 
@@ -161,8 +161,13 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
             request["startRow"] += row_limit
 
 
-@backoff.on_exception(backoff.expo, googleapiclient.errors.HttpError, logger=logger)
-@limits(calls=20, period=20 * 60)
+@backoff.on_exception(
+    backoff.expo,
+    googleapiclient.errors.HttpError,
+    ratelimit.exception.RateLimitException,
+    logger=logger,
+)
+@ratelimit.limits(calls=20, period=20 * 60)
 def search_analytics(site_url, body):
     return svc.searchanalytics().query(siteUrl=site_url, body=body).execute()
 
