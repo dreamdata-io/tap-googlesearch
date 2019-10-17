@@ -31,13 +31,14 @@ def main():
 
     site_urls = args.config.get("site_urls")
     stream_id = args.config.get("stream_id")
+    start_date = args.config.get("start_date")
 
     state = args.state
 
     http = get_authorized_http(credentials_file)
     service = build("webmasters", "v3", cache_discovery=False, http=http)
 
-    stream.process_streams(service, site_urls, dimensions, state=state, stream_id=stream_id)
+    stream.process_streams(service, site_urls, dimensions, state=state, stream_id=stream_id, start_date=start_date)
 
 
 def get_authorized_http(credentials_file):

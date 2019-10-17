@@ -16,7 +16,7 @@ logger = singer.get_logger()
 svc = None
 
 
-def process_streams(service, site_urls, dimensions, state=None, stream_id=None):
+def process_streams(service, site_urls, dimensions, state=None, stream_id=None, start_date=None):
     global svc
     svc = service
 
@@ -58,7 +58,7 @@ def process_streams(service, site_urls, dimensions, state=None, stream_id=None):
     new_checkpoint = None
     try:
         for record, new_checkpoint in build_records(
-            dimensions, site_urls, checkpoint=checkpoint
+            dimensions, site_urls, checkpoint=checkpoint, start_date=start_date
         ):
             singer.write_record(stream_id, record, time_extracted=utils.now())
     except Exception as err:
@@ -76,11 +76,13 @@ def process_streams(service, site_urls, dimensions, state=None, stream_id=None):
     logger.info(f"[{stream_id}] done")
 
 
-def build_records(dimensions, site_urls, checkpoint=None):
-    if not checkpoint:
-        start_date = date.today() - timedelta(weeks=4 * 6)
-    else:
+def build_records(dimensions, site_urls, start_date=None, checkpoint=None):
+    if checkpoint:
         start_date = datetime.strptime(checkpoint, "%Y-%m-%d").date()
+    elif start_date:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+    else:
+        start_date = date.today() - timedelta(weeks=4 * 6)
 
     for site_url in site_urls:
         days = filter_days_with_data(site_url, start_date=start_date)
