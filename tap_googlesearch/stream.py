@@ -16,7 +16,9 @@ logger = singer.get_logger()
 svc = None
 
 
-def process_streams(service, site_urls, dimensions, state=None, stream_id=None, start_date=None):
+def process_streams(
+    service, site_urls, dimensions, state=None, stream_id=None, start_date=None
+):
     global svc
     svc = service
 
@@ -62,8 +64,10 @@ def process_streams(service, site_urls, dimensions, state=None, stream_id=None, 
         ):
             singer.write_record(stream_id, record, time_extracted=utils.now())
     except Exception as err:
-        logger.error(f"stream encountered an error: {err}")
-        logger.info(f"emitting last successfull checkpoint")
+        logger.error(traceback.format_exc())
+        logger.error(f"stream encountered an error: {str(err)}")
+
+    logger.info(f"emitting last successfull checkpoint")
 
     checkpoint = new_checkpoint or checkpoint_backup
 
@@ -110,11 +114,6 @@ def filter_days_with_data(site_url, start_date: date = None):
     }
     resp = svc.searchanalytics().query(siteUrl=site_url, body=request).execute()
 
-    if "rows" not in resp:
-        print(json.dumps(resp))
-        raise ValueError("no rows in the query!")
-
-
     # dates are sorted in ascending order
     for item in resp["rows"]:
         # example: 'keys': ['2019-09-09']
@@ -136,10 +135,12 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
             "startRow": 0,
         }
 
+        dims = len(dimensions)
         while True:
-            resp = svc.searchanalytics().query(siteUrl=site_url, body=request).execute()
-            dims = len(dimensions)
-            for item in resp["rows"]:
+            resp = search_analytics(site_url, request)
+            rows = resp.get("rows", [])
+
+            for item in rows:
                 values = item.pop("keys")
                 for i in range(dims):
                     key, value = dimensions[i], values[i]
@@ -148,7 +149,7 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
                 item["site_url"] = site_url
                 yield item, end_date
 
-            if len(resp["rows"]) < row_limit:
+            if len(rows) < row_limit:
                 break
 
             request["startRow"] += row_limit
