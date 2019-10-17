@@ -72,6 +72,7 @@ def process_streams(
     except Exception as err:
         logger.error(traceback.format_exc())
         logger.error(f"stream encountered an error: {str(err)}")
+        raise
 
     logger.info(f"emitting last successfull checkpoint")
 
@@ -167,7 +168,7 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
     ratelimit.exception.RateLimitException,
     logger=logger,
 )
-@ratelimit.limits(calls=20, period=1)
+@ratelimit.limits(calls=20 * 60, period=60)
 def search_analytics(site_url, body):
     return svc.searchanalytics().query(siteUrl=site_url, body=body).execute()
 
