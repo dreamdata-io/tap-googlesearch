@@ -167,7 +167,7 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
     ratelimit.exception.RateLimitException,
     logger=logger,
 )
-@ratelimit.limits(calls=20, period=20 * 60)
+@ratelimit.limits(calls=20, period=1)
 def search_analytics(site_url, body):
     return svc.searchanalytics().query(siteUrl=site_url, body=body).execute()
 
