@@ -13,7 +13,7 @@
             "type": "string"
         },
         "timestamp": {
-            "format": "datetime",
+            "format": "date-time",
             "type": "string"
         },
         "clicks": {
@@ -29,7 +29,7 @@
             "type": "number"
         },
         "date": {
-            "format": "datetime",
+            "format": "date-time",
             "type": [
                 "null",
                 "string"
