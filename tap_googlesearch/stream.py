@@ -150,8 +150,11 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
                 values = item.pop("keys")
                 for i in range(dims):
                     key, value = dimensions[i], values[i]
+                    if key == "date":
+                        date = datetime.strptime(value, "%Y-%m-%d")
+                        value = date.isoformat()
                     item[key] = value
-                item["timestamp"] = start_date
+                item["timestamp"] = start_date.isoformat()
                 item["site_url"] = site_url
                 yield item, end_date
 
