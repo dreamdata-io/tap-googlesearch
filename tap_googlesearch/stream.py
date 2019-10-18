@@ -124,19 +124,18 @@ def filter_days_with_data(site_url, start_date: date = None):
     # dates are sorted in ascending order
     for item in resp["rows"]:
         # example: 'keys': ['2019-09-09']
-        yield item["keys"][0]
+        date_string = item["keys"][0]
+        yield datetime.strptime(date_string, "%Y-%m-%d")
 
 
 def get_analytics(site_url, days, dimensions, row_limit=None):
     row_limit = row_limit or 1000
     for start_date in days:
-        end_date = (
-            datetime.strptime(start_date, "%Y-%m-%d").date() + timedelta(days=1)
-        ).strftime("%Y-%m-%d")
+        end_date = start_date + timedelta(days=1)
 
         request = {
-            "startDate": start_date,
-            "endDate": end_date,
+            "startDate": start_date.strftime("%Y-%m-%d"),
+            "endDate": end_date.strftime("%Y-%m-%d"),
             "dimensions": dimensions,
             "rowLimit": 1000,
             "startRow": 0,
