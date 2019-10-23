@@ -64,15 +64,17 @@ def process_streams(
 
     checkpoint_backup = checkpoint
     new_checkpoint = None
-    try:
-        for record, new_checkpoint in build_records(
-            dimensions, site_urls, checkpoint=checkpoint, start_date=start_date
-        ):
-            singer.write_record(stream_id, record, time_extracted=utils.now())
-    except Exception as err:
-        logger.error(traceback.format_exc())
-        logger.error(f"stream encountered an error: {str(err)}")
-        raise
+    with singer.metrics.record_counter(stream_id) as counter:
+        try:
+            for record, new_checkpoint in build_records(
+                dimensions, site_urls, checkpoint=checkpoint, start_date=start_date
+            ):
+                singer.write_record(stream_id, record, time_extracted=utils.now())
+            counter.increment(1)
+        except Exception as err:
+            logger.error(traceback.format_exc())
+            logger.error(f"stream encountered an error: {str(err)}")
+            raise
 
     logger.info(f"emitting last successfull checkpoint")
 
