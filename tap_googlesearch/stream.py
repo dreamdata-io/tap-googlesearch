@@ -52,17 +52,22 @@ def process_streams(
                     f"site_url '{site_url}' not in the list of verified site_urls: {verified_urls}"
                 )
 
-    checkpoint = singer.get_bookmark(state, stream_id, bookmark_property)
-    if checkpoint:
-        logger.info(f"[{stream_id}] previous state: {checkpoint}")
-
     # load schema from disk
     schema = load_schema()
 
     # write schema
     singer.write_schema(stream_id, schema, key_properties)
 
-    checkpoint_backup = checkpoint
+    if start_date:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+
+    checkpoint_string = singer.get_bookmark(state, stream_id, bookmark_property)
+    checkpoint = None
+    checkpoint_backup = None
+    if checkpoint_string:
+        logger.info(f"[{stream_id}] previous state: {checkpoint_string}")
+        checkpoint_backup = checkpoint = datetime.strptime(checkpoint, "%Y-%m-%d")
+
     new_checkpoint = None
     with singer.metrics.record_counter(stream_id) as counter:
         try:
@@ -93,9 +98,7 @@ def build_records(dimensions, site_urls, start_date=None, checkpoint=None):
     if checkpoint:
         # make sure to start a day after the last checkpointed date
         # to ensure that we are not producing duplicate data
-        start_date = (
-            datetime.strptime(checkpoint, "%Y-%m-%d") + timedelta(days=1)
-        ).date()
+        start_date = (checkpoint + timedelta(days=1)).date()
     elif start_date:
         start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
     else:
