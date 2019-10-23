@@ -4,7 +4,7 @@ import json
 
 import httplib2
 from apiclient.discovery import build
-from oauth2client.client import AccessTokenCredentials 
+from oauth2client.client import AccessTokenCredentials
 import singer
 from singer import utils
 
