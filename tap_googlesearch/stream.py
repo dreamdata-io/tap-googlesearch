@@ -128,7 +128,7 @@ def filter_days_with_data(site_url, start_date: date = None):
     resp = svc.searchanalytics().query(siteUrl=site_url, body=request).execute()
 
     # dates are sorted in ascending order
-    for item in resp["rows"]:
+    for item in resp.get("rows", []):
         # example: 'keys': ['2019-09-09']
         date_string = item["keys"][0]
         yield datetime.strptime(date_string, "%Y-%m-%d")
