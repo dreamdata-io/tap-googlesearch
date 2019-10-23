@@ -66,7 +66,9 @@ def process_streams(
     checkpoint_backup = None
     if checkpoint_string:
         logger.info(f"[{stream_id}] previous state: {checkpoint_string}")
-        checkpoint_backup = checkpoint = datetime.strptime(checkpoint, "%Y-%m-%d")
+        checkpoint_backup = checkpoint = datetime.strptime(
+            checkpoint_string, "%Y-%m-%d"
+        )
 
     new_checkpoint = None
     with singer.metrics.record_counter(stream_id) as counter:
