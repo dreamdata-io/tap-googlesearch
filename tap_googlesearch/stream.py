@@ -91,7 +91,11 @@ def process_streams(
 
 def build_records(dimensions, site_urls, start_date=None, checkpoint=None):
     if checkpoint:
-        start_date = datetime.strptime(checkpoint, "%Y-%m-%d").date()
+        # make sure to start a day after the last checkpointed date
+        # to ensure that we are not producing duplicate data
+        start_date = (
+            datetime.strptime(checkpoint, "%Y-%m-%d") + timedelta(days=1)
+        ).date()
     elif start_date:
         start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
     else:
@@ -158,7 +162,7 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
                     item[key] = value
                 item["timestamp"] = start_date.isoformat()
                 item["site_url"] = site_url
-                yield item, end_date
+                yield item, start_date
 
             if len(rows) < row_limit:
                 break
