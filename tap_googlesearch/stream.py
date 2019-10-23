@@ -77,7 +77,7 @@ def process_streams(
                 dimensions, site_urls, checkpoint=checkpoint, start_date=start_date
             ):
                 singer.write_record(stream_id, record, time_extracted=utils.now())
-            counter.increment(1)
+                counter.increment(1)
         except Exception as err:
             logger.error(traceback.format_exc())
             logger.error(f"stream encountered an error: {str(err)}")
