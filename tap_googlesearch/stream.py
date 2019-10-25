@@ -85,9 +85,11 @@ def process_streams(
 
     logger.info(f"emitting last successfull checkpoint")
 
-    checkpoint = (new_checkpoint or checkpoint_backup).strftime("%Y-%m-%d")
-
-    singer.write_bookmark(state, stream_id, bookmark_property, checkpoint)
+    checkpoint = new_checkpoint or checkpoint_backup
+    if checkpoint:
+        singer.write_bookmark(
+            state, stream_id, bookmark_property, checkpoint.strftime("%Y-%m-%d")
+        )
 
     logger.info(f"[{stream_id}] emitting state: {state}")
 
