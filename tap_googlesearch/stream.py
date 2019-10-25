@@ -102,7 +102,7 @@ def build_records(dimensions, site_urls, start_date=None, checkpoint=None):
         # to ensure that we are not producing duplicate data
         start_date = (checkpoint + timedelta(days=1)).date()
     elif start_date:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        start_date = start_date.date()
     else:
         start_date = date.today() - timedelta(weeks=4 * 6)
 
