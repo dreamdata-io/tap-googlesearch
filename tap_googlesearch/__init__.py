@@ -52,7 +52,9 @@ def get_authorized_http(credentials_file):
     with open(credentials_file, "r") as fp:
         json_creds = json.load(fp)
 
-    credentials = AccessTokenCredentials(json_creds["access_token"], "tap-googlesearch-0.0.1")
+    credentials = AccessTokenCredentials(
+        json_creds["access_token"], "tap-googlesearch-0.0.1"
+    )
 
     http = httplib2.Http()
     return credentials.authorize(http)

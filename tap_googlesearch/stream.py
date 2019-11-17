@@ -132,7 +132,8 @@ def filter_days_with_data(site_url, start_date: date = None):
         "endDate": date.today().strftime("%Y-%m-%d"),
         "dimensions": ["date"],
     }
-    resp = svc.searchanalytics().query(siteUrl=site_url, body=request).execute()
+
+    resp = search_analytics(site_url, request)
 
     # dates are sorted in ascending order
     for item in resp.get("rows", []):
