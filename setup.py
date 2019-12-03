@@ -3,7 +3,7 @@ import os
 from setuptools import setup
 
 
-version = os.environ.get("CIRCLE_TAG") or "0.0.1-dev"
+version = os.environ.get("PACKAGE_VERSION") or os.environ.get("CIRCLE_TAG")
 url = "https://github.com/dreamdata-io/tap-googlesearch"
 
 setup(
