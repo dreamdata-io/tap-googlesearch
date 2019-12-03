@@ -1,3 +1,9 @@
+# visual studio code specific
+.vscode
+
+# OSX specific ignores
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
