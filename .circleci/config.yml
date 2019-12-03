@@ -1,0 +1,39 @@
+version: 2.1
+
+executors:
+  python_3:
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          PIPENV_VENV_IN_PROJECT: "true"
+
+workflows:
+  version: 2
+  tagged-build:
+    jobs:
+      - test
+      - deploy_package:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              only: master
+
+jobs:
+  test:
+    executor: python_3
+    working_directory: ~/package
+    steps:
+      - checkout
+      - run: python setup.py sdist
+
+  deploy_package:
+    executor: python_3
+    steps:
+      - checkout
+      - run: pip install pipenv
+      - run: pipenv install twine
+      - run: pipenv run python setup.py sdist
+      - run: pipenv run twine upload dist/* -u "__token__" -p "${TWINE_PASSWORD}"
