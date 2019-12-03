@@ -11,6 +11,7 @@ setup(
     version=version,
     description="Singer.io tap for extracting data from Google Search Analytics",
     author="Dreamdata",
+    author_email="friends@dreamdata.io",
     url=url,
     download_url=f"{url}/archive/v{version}.tar.gz",
     classifiers=["Programming Language :: Python :: 3 :: Only"],
