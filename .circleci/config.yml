@@ -11,10 +11,11 @@ workflows:
   version: 2
   tagged-build:
     jobs:
-      - test
+      - test:
+          filters:
+            branches:
+              ignore: master
       - deploy_package:
-          requires:
-            - test
           filters:
             tags:
               only: /^v.*/
