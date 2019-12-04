@@ -6,10 +6,16 @@ from setuptools import setup
 version = os.environ.get("PACKAGE_VERSION") or os.environ.get("CIRCLE_TAG")
 url = "https://github.com/dreamdata-io/tap-googlesearch"
 
+
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
+
 setup(
     name="tap-googlesearch",
     version=version,
     description="Singer.io tap for extracting data from Google Search Analytics",
+    long_description=long_description,
     author="Dreamdata",
     author_email="friends@dreamdata.io",
     url=url,
