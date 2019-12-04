@@ -27,7 +27,7 @@ setup(
         "singer-python>=5.8.1, <6",
         "google-api-python-client==1.7.11",
         "ratelimit==2.2.1",
-        "backoff==1.8.0",
+        "backoff>=1.8.0, <2",
     ],
     entry_points="""
         [console_scripts]
