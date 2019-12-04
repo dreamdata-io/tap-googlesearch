@@ -2,9 +2,9 @@ import os
 import logging
 import json
 
-import httplib2
 from apiclient.discovery import build
-from oauth2client.client import OAuth2Credentials
+from google.oauth2.credentials import Credentials
+
 import singer
 from singer import utils
 
@@ -36,7 +36,7 @@ def main():
     state = args.state
 
     credentials = get_authorized_http(credentials_file)
-    service = build("webmasters", "v3", credentials=credentials)
+    service = build("webmasters", "v3", cache_discovery=False, credentials=credentials)
 
     stream.process_streams(
         service,
@@ -50,9 +50,21 @@ def main():
 
 def get_authorized_http(credentials_file):
     with open(credentials_file, "r") as fp:
-        json_file = fp.read()
+        json_file = json.load(fp)
 
-    return OAuth2Credentials.from_json(json_file)
+    access_token = json_file["access_token"]
+    refresh_token = json_file["refresh_token"]
+    client_id = json_file["client_id"]
+    client_secret = json_file["client_secret"]
+
+    return Credentials(
+        access_token,
+        refresh_token=refresh_token,
+        client_id=client_id,
+        client_secret=client_secret,
+        token_uri="https://oauth2.googleapis.com/token",
+        scopes=["https://www.googleapis.com/auth/webmasters.readonly"],
+    )
 
 
 if __name__ == "__main__":

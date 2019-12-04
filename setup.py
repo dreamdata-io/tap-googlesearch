@@ -28,7 +28,6 @@ setup(
         "google-api-python-client==1.7.11",
         "ratelimit==2.2.1",
         "backoff>=1.8.0, <2",
-        "oauth2client",
     ],
     entry_points="""
         [console_scripts]
