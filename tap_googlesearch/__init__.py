@@ -4,7 +4,7 @@ import json
 
 import httplib2
 from apiclient.discovery import build
-from oauth2client.client import AccessTokenCredentials
+from oauth2client.client import OAuth2Credentials
 import singer
 from singer import utils
 
@@ -35,8 +35,8 @@ def main():
 
     state = args.state
 
-    http = get_authorized_http(credentials_file)
-    service = build("webmasters", "v3", cache_discovery=False, http=http)
+    credentials = get_authorized_http(credentials_file)
+    service = build("webmasters", "v3", credentials=credentials)
 
     stream.process_streams(
         service,
@@ -50,14 +50,9 @@ def main():
 
 def get_authorized_http(credentials_file):
     with open(credentials_file, "r") as fp:
-        json_creds = json.load(fp)
+        json_file = fp.read()
 
-    credentials = AccessTokenCredentials(
-        json_creds["access_token"], "tap-googlesearch-0.0.1"
-    )
-
-    http = httplib2.Http()
-    return credentials.authorize(http)
+    return OAuth2Credentials.from_json(json_file)
 
 
 if __name__ == "__main__":
