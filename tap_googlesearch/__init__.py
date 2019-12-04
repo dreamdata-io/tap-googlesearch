@@ -52,10 +52,21 @@ def get_authorized_http(credentials_file):
     with open(credentials_file, "r") as fp:
         json_file = json.load(fp)
 
-    access_token = json_file["access_token"]
-    refresh_token = json_file["refresh_token"]
-    client_id = json_file["client_id"]
-    client_secret = json_file["client_secret"]
+    # do not require optional fields
+    access_token = json_file.get("access_token")
+    refresh_token = json_file.get("refresh_token")
+    client_id = json_file.get("client_id")
+    client_secret = json_file.get("client_secret")
+
+    if not refresh_token:
+        logger.warn(
+            f"no 'refresh_token' in file {credentials_file} - unable to refresh when token expires"
+        )
+
+    if not refresh_token and not access_token:
+        raise ValueError(
+            f"required field 'access_token' cannot be empty without a non-empty 'refresh_token' ({credentials_file} file)"
+        )
 
     return Credentials(
         access_token,
