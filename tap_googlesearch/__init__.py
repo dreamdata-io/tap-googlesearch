@@ -10,8 +10,12 @@ from singer import utils
 
 from tap_googlesearch import stream
 
+discovery.logger.setLevel(logging.WARNING)
+
+logging.basicConfig(level=logging.INFO)
 logger = singer.get_logger()
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.INFO)
+
 
 DIMENSIONS = ["country", "page", "query", "device", "date"]
 
