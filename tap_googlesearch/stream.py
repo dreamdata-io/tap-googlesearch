@@ -118,13 +118,18 @@ def verified_site_urls():
     site_list = svc.sites().list().execute()
 
     # Filter for verified websites
-    return [
-        s["siteUrl"]
-        for s in site_list["siteEntry"]
-        if s["permissionLevel"] != "siteUnverifiedUser"
-        and s["siteUrl"][:9] == "sc-domain"
-        or s["siteUrl"][:4] == "http"
-    ]
+    site_domain = []
+    site_http = []
+    for s in site_list["siteEntry"]:
+        if s["permissionLevel"] != "siteUnverifiedUser":
+            if s["siteUrl"][:9] == "sc-domain":
+                site_domain.append(s["siteUrl"])
+            elif s["siteUrl"][:4] == "http":
+                site_http.append(s["siteUrl"])
+    if len(site_domain) != 0:
+        return site_domain
+    else:
+        return site_http
 
 
 def filter_days_with_data(site_url, start_date: date = None):
