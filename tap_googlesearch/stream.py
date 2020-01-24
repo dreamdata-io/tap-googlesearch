@@ -121,7 +121,9 @@ def verified_site_urls():
     return [
         s["siteUrl"]
         for s in site_list["siteEntry"]
-        if s["permissionLevel"] != "siteUnverifiedUser" and s["siteUrl"][:4] == "http"
+        if s["permissionLevel"] != "siteUnverifiedUser"
+        and s["siteUrl"][:9] == "sc-domain"
+        or s["siteUrl"][:4] == "http"
     ]
 
 
