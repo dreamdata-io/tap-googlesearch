@@ -118,8 +118,8 @@ def verified_site_urls():
     site_list = svc.sites().list().execute()
 
     # Filter for verified websites
-    site_domain = []
-    site_http = []
+    site_domain_list = []
+    site_http_list = []
     for s in site_list["siteEntry"]:
         if s["permissionLevel"] != "siteUnverifiedUser":
             if s["siteUrl"][:9] == "sc-domain":
