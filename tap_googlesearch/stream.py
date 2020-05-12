@@ -128,10 +128,7 @@ def verified_site_urls():
             site_domain_list.append(site_url)
         elif site_url.startswith("http"):
             site_http_list.append(site_url)
-    if site_domain_list:
-        return site_domain_list
-    else:
-        return site_http_list
+    return site_domain_list + site_http_list
 
 
 def filter_days_with_data(site_url, start_date: date = None):
