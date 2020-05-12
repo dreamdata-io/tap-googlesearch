@@ -121,7 +121,7 @@ def verified_site_urls():
     site_domain_list = []
     site_http_list = []
     for s in site_list["siteEntry"]:
-        site_url=s["siteUrl"]
+        site_url = s["siteUrl"]
         if s["permissionLevel"] == "siteUnverifiedUser":
             continue
         if site_url.startswith("sc-domain"):
