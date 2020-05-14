@@ -46,11 +46,13 @@ def process_streams(
     if not site_urls:
         site_urls = verified_urls
     else:
+        filtered_urls = []
         for site_url in site_urls:
             if site_url not in verified_urls:
-                raise ValueError(
-                    f"site_url '{site_url}' not in the list of verified site_urls: {verified_urls}"
-                )
+                logger.warning(f"ignoring unverified url: {site_url}")
+                continue
+            filtered_urls.append(site_url)
+        site_urls = filtered_urls
 
     # load schema from disk
     schema = load_schema()
