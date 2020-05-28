@@ -1,6 +1,7 @@
 import os
 import logging
 import json
+from typing import List, Union
 
 from apiclient import discovery
 from google.oauth2.credentials import Credentials
@@ -22,8 +23,6 @@ DIMENSIONS = ["country", "page", "query", "device", "date"]
 
 def main():
     args = utils.parse_args([])
-
-    dimensions = args.config.get("dimensions")
 
     credentials_file = args.config.get("oauth2_credentials_file") or os.environ.get(
         "OAUTH2_CREDENTIALS_FILE"
@@ -47,19 +46,20 @@ def main():
     )
 
     site_urls = args.config.get("site_urls")
-    stream_id = args.config.get("stream_id")
     start_date = args.config.get("start_date")
-
     state = args.state
+    dimensions: Union[List[List[str]], List[str]] = args.config.get("dimensions")
 
-    stream.process_streams(
-        service,
-        site_urls,
-        dimensions,
-        state=state,
-        stream_id=stream_id,
-        start_date=start_date,
-    )
+    if not dimensions:
+        raise ValueError(f"no dimensions selected")
+
+    item = dimensions[0]
+    # this is only to support the old configuration format
+    if isinstance(item, str):
+        stream.process_streams(
+            service, site_urls, dimensions, state=state, start_date=start_date,
+        )
+        return
 
 
 def get_credentials(
