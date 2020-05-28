@@ -61,6 +61,11 @@ def main():
         )
         return
 
+    for dims in dimensions:
+        state = stream.process_streams(
+            service, site_urls, dims, state=state, start_date=start_date,
+        )
+
 
 def get_credentials(
     client_id=None,

@@ -95,6 +95,7 @@ def process_streams(service, site_urls, dimensions, state=None, start_date=None)
     singer.write_state(state)
 
     logger.info(f"[{stream_id}] done")
+    return state
 
 
 def build_records(dimensions, site_urls, start_date=None, checkpoint=None):
