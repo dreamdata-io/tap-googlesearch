@@ -70,12 +70,14 @@ def process_streams(service, site_urls, dimensions, state=None, start_date=None)
             checkpoint_string, "%Y-%m-%d"
         )
 
-    new_checkpoint = None
+    new_successful_checkpoint = None
     with singer.metrics.record_counter(stream_id) as counter:
         try:
             for record, new_checkpoint in build_records(
                 dimensions, site_urls, checkpoint=checkpoint, start_date=start_date
             ):
+                if new_checkpoint:
+                    new_successful_checkpoint = new_checkpoint
                 singer.write_record(stream_id, record, time_extracted=utils.now())
                 counter.increment(1)
         except Exception as err:
@@ -84,8 +86,7 @@ def process_streams(service, site_urls, dimensions, state=None, start_date=None)
             raise
 
     logger.info(f"emitting last successfull checkpoint")
-
-    checkpoint = new_checkpoint or checkpoint_backup
+    checkpoint = new_successful_checkpoint or checkpoint_backup
     if checkpoint:
         singer.write_bookmark(
             state, stream_id, bookmark_property, checkpoint.strftime("%Y-%m-%d")
