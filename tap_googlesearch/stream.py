@@ -23,6 +23,33 @@ logger = singer.get_logger()
 svc = None
 
 
+def is_rate_limit_exc(e):
+    if not hasattr(e, "resp"):
+        return False
+
+    if not e.resp.status == 403:
+        return False
+
+    reason_in_response_body = "quotaExceeded"
+    reason_in_error_class = "Search Analytics QPS quota exceeded. Learn about usage limits: https://developers.google.com/webmaster-tools/v3/limits."
+    string_reason_match = False
+    try:
+        string_reason_match = reason_in_error_class == e._get_reason()
+    except Exception:
+        pass
+
+    body_reason_match = False
+    try:
+        exception_content = json.loads(e.content.decode("utf-8"))
+        body_reason_match = (
+            reason_in_response_body == exception_content["error"]["errors"][0]["reason"]
+        )
+    except Exception:
+        pass
+
+    return string_reason_match or body_reason_match
+
+
 def process_streams(service, site_urls, dimensions, state=None, start_date=None):
     global svc
     svc = service
@@ -83,7 +110,10 @@ def process_streams(service, site_urls, dimensions, state=None, start_date=None)
         except Exception as err:
             logger.error(traceback.format_exc())
             logger.error(f"stream encountered an error: {str(err)}")
-            raise
+            if is_rate_limit_exc(err):
+                logger.warning("API quota exceeded, writing last state.")
+            else:
+                raise
 
     logger.info(f"emitting last successfull checkpoint")
     checkpoint = new_successful_checkpoint or checkpoint_backup
@@ -186,7 +216,11 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
             request["startRow"] += row_limit
 
 
-@backoff.on_exception(backoff.expo, (googleapiclient.errors.HttpError, socket.timeout))
+@backoff.on_exception(
+    backoff.expo,
+    (googleapiclient.errors.HttpError, socket.timeout),
+    giveup=is_rate_limit_exc,
+)
 @ratelimit.limits(calls=20 * 60, period=60, raise_on_limit=False)
 def search_analytics(site_url, body):
     return svc.searchanalytics().query(siteUrl=site_url, body=body).execute()
