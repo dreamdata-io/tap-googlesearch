@@ -2,6 +2,7 @@ import os
 import pkg_resources
 import json
 import sys
+import socket
 import traceback
 
 from typing import Dict, Any, List
@@ -184,7 +185,7 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
             request["startRow"] += row_limit
 
 
-@backoff.on_exception(backoff.expo, googleapiclient.errors.HttpError)
+@backoff.on_exception(backoff.expo, (googleapiclient.errors.HttpError, socket.timeout))
 @ratelimit.limits(calls=20 * 60, period=60, raise_on_limit=False)
 def search_analytics(site_url, body):
     return svc.searchanalytics().query(siteUrl=site_url, body=body).execute()
