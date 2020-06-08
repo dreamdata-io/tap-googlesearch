@@ -219,6 +219,8 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
 @backoff.on_exception(
     backoff.expo,
     (googleapiclient.errors.HttpError, socket.timeout),
+    max_tries=5,
+    factor=2,
     giveup=is_rate_limit_exc,
 )
 @ratelimit.limits(calls=20 * 60, period=60, raise_on_limit=False)
