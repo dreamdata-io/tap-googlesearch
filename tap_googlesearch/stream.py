@@ -22,6 +22,13 @@ logger = singer.get_logger()
 svc = None
 
 
+def is_rate_limit_exc(e):
+    if isinstance(e, googleapiclient.errors.HttpError):
+        return "quota exceeded" in e._get_reason()
+
+    return False
+
+
 def process_streams(service, site_urls, dimensions, state=None, start_date=None):
     global svc
     svc = service
@@ -69,22 +76,25 @@ def process_streams(service, site_urls, dimensions, state=None, start_date=None)
             checkpoint_string, "%Y-%m-%d"
         )
 
-    new_checkpoint = None
+    new_successful_checkpoint = None
     with singer.metrics.record_counter(stream_id) as counter:
         try:
             for record, new_checkpoint in build_records(
                 dimensions, site_urls, checkpoint=checkpoint, start_date=start_date
             ):
+                if new_checkpoint:
+                    new_successful_checkpoint = new_checkpoint
                 singer.write_record(stream_id, record, time_extracted=utils.now())
                 counter.increment(1)
+        except googleapiclient.errors.HttpError as err:
+            logger.error(f"HTTP error: {str(err)}")
         except Exception as err:
             logger.error(traceback.format_exc())
             logger.error(f"stream encountered an error: {str(err)}")
             raise
 
     logger.info(f"emitting last successfull checkpoint")
-
-    checkpoint = new_checkpoint or checkpoint_backup
+    checkpoint = new_successful_checkpoint or checkpoint_backup
     if checkpoint:
         singer.write_bookmark(
             state, stream_id, bookmark_property, checkpoint.strftime("%Y-%m-%d")
@@ -184,7 +194,13 @@ def get_analytics(site_url, days, dimensions, row_limit=None):
             request["startRow"] += row_limit
 
 
-@backoff.on_exception(backoff.expo, googleapiclient.errors.HttpError)
+@backoff.on_exception(
+    backoff.expo,
+    googleapiclient.errors.HttpError,
+    max_tries=5,
+    factor=2,
+    giveup=is_rate_limit_exc,
+)
 @ratelimit.limits(calls=20 * 60, period=60, raise_on_limit=False)
 def search_analytics(site_url, body):
     return svc.searchanalytics().query(siteUrl=site_url, body=body).execute()
