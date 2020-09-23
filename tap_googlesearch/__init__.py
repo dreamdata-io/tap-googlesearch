@@ -42,7 +42,7 @@ def main():
     )
 
     service = discovery.build(
-        "webmasters", "v3", cache_discovery=False, credentials=credentials
+        "searchconsole", "v1", cache_discovery=False, credentials=credentials
     )
 
     site_urls = args.config.get("site_urls")
